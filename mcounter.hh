@@ -26,11 +26,11 @@ public:
   void addChild(UnsharedCounterStruct<T>*);
   void removeChild(UnsharedCounterStruct<T>*);
 private:
+  void StructPlusIs(T& dst, const volatile T& src);
   std::unordered_set<UnsharedCounterStruct<T>*> d_children;
   std::mutex d_mutex;
-  
-private:
   T d_formerChildren;
+
 };
 
 template<typename T>
@@ -47,7 +47,7 @@ public:
     d_ucp->removeChild(this);
   }
 
-  T d_value;
+  volatile T d_value;
 private:
   UnsharedCounterStructParent<T>* d_ucp;
 };
