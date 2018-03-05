@@ -26,7 +26,7 @@ improves that number to 3 billion updates per second.
 
 Per-thread counters are super fast, but not what we need - our process needs
 to report what it is doing from an operator's perspective, and the operator
-does not care about out threads.
+does not care about our threads.
 
 ## Unshared counters that can safely be read
 This code assumes you'll have a relatively low number of threads ('dozens to
@@ -83,12 +83,15 @@ int main() {
 	t2.join();
 	cout << myc.get().a << "\n"; // prints 2000000000
 	cout << myc.get().b << "\n"; // prints 0
+}
 ```
 
 ## Technicalities
 The UnsharedCounter objects use non-atomic counters. These counters are
 however read from other threads, with no locking. As long as counters do not
-stradle cache lines, this is safe. 
+straddle cache lines, this is safe. Given that we use 64 bit counters, on
+structs that will be 64 bit aligned, this should be true. Even if it isn't
+true, the effect will only be momentarily.
 
 The code currently specifies counters as 'volatile'. This is not strictly
 necessary, but does remove some surprises. If counters would not be
@@ -97,4 +100,6 @@ it there. This means the Parent object may not 'see' updates for prolonged
 amounts of time.
 
 If you know what you are doing, you can remove 'volatile' and gain another
-speedup.
+speedup. Note that benchmarking then becomes very difficult as compilers
+tend to "see what you are doing", and optimize your loops away.
+
