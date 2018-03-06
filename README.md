@@ -53,7 +53,7 @@ int main() {
 }
 ```
 
-It is safe to call `usp.get()` at any time. However, an `UnsharedCounter`
+It is safe to call `ucp.get()` at any time. However, an `UnsharedCounter`
 should never be updated from more than one thread at once.
 
 ## Extending this to structs
@@ -103,3 +103,17 @@ If you know what you are doing, you can remove 'volatile' and gain another
 speedup. Note that benchmarking then becomes very difficult as compilers
 tend to "see what you are doing", and optimize your loops away.
 
+## Performance
+As noted, these counters are aimed to support typical numbers of threads,
+frequent updates and infrequent reads. Zooming in a little bit, the actual
+limit is not so much on the number of threads, but the number of
+`UnsharedCounter` instances.
+
+On creation of an `UnsharedCounter` it reports to its parent, and this
+involves a lock. If such an instantiation happens once for every thread, the
+overhead is minimal. So in other words, aim for long-lived `UnsharedCounter`
+instances.
+
+Retrieving the value of a counter (or a set of counters in struct) similarly
+involves taking a lock, as the list `UnsharedCounter`s needs to be
+traversed.
