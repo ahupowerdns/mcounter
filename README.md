@@ -19,6 +19,10 @@ performance gradually goes down to 45 million operations/second.
 This means that if a process updates 10 counters per packet, whatever you
 do, you'll never scale beyond 5 million packets/second, no matter how many
 cores you throw at it - assuming the rest of your code takes no time at all! 
+(Note that one might expect several counters to not interfere with each
+other, but the cache line communications appear to be limited to around 50
+million/second on my system, no matter how many lines these are spread
+over).
 
 Meanwhile, when two threads update unrelated 64 bit counters, they achieve
 over a billion updates per second. Using 8 threads on my 4-core system
