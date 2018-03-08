@@ -1,9 +1,11 @@
 CXXFLAGS:=-std=gnu++14 -Wall -O2 -MMD -MP
 
-all: mmulti msingle
+PROGRAMS = mmulti msingle mtests
+
+all: $(PROGRAMS)
 
 clean:
-	rm -f *~ *.o *.d test
+	rm -f *~ *.o *.d test $(PROGRAMS)
 
 -include *.d
 
