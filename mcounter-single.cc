@@ -7,34 +7,6 @@
 
 using namespace std;
 
-uint64_t UnsharedCounterParent::get()
-{
-  uint64_t ret=d_formerChildren;
-  std::lock_guard<std::mutex> l(d_mutex);
-  cout<<"Value: "<<ret;
-  for(const auto& c : d_children) {
-    cout<<" + "<<c->d_value;
-    ret += c->d_value;
-  }
-  cout<<endl;
-  return ret;
-}
-
-void UnsharedCounterParent::addChild(UnsharedCounter* uc)
-{
-  std::lock_guard<std::mutex> l(d_mutex);
-  d_children.insert(uc);
-}
-
-void UnsharedCounterParent::removeChild(UnsharedCounter* uc)
-{
-  cout<<"Adding "<<uc->d_value<<" from former child"<<endl;
-  d_formerChildren += uc->d_value;
-  std::lock_guard<std::mutex> l(d_mutex);
-
-  d_children.erase(uc);
-}
-
 UnsharedCounterParent ucp;
 
 void unsharedWorker(unsigned int a)

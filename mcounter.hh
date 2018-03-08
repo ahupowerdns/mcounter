@@ -51,3 +51,47 @@ public:
 private:
   UnsharedCounterStructParent<T>* d_ucp;
 };
+
+template<typename T>
+void UnsharedCounterStructParent<T>::StructPlusIs(T& dst, const volatile T& src)
+{
+  // get your helmet on
+  auto dptr = (uint64_t*)&dst;
+  auto sptr = (const uint64_t*)&src;
+  static_assert((sizeof(T) % 8) == 0);
+  int num = sizeof(T)/8;
+
+  for(int n = 0 ; n < num; ++n)
+    *dptr++ += *sptr++;
+
+  // so this just added the 64 bit counters in struct src to those in dst
+  // "roughly"
+}
+
+template<typename T>
+T UnsharedCounterStructParent<T>::get()
+{
+  std::lock_guard<std::mutex> l(d_mutex);
+  T ret = d_formerChildren;
+
+  for(const auto& c : d_children) {
+    StructPlusIs(ret, c->d_value);
+  }
+  return ret;
+}
+
+template<typename T>
+void UnsharedCounterStructParent<T>::addChild(UnsharedCounterStruct<T>* uc)
+{
+  std::lock_guard<std::mutex> l(d_mutex);
+  d_children.insert(uc);
+}
+
+template<typename T>
+void UnsharedCounterStructParent<T>::removeChild(UnsharedCounterStruct<T>* uc)
+{
+  std::lock_guard<std::mutex> l(d_mutex);
+  StructPlusIs(d_formerChildren, uc->d_value);
+  d_children.erase(uc);
+}
+
