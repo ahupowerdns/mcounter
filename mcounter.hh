@@ -58,7 +58,7 @@ void UnsharedCounterStructParent<T>::StructPlusIs(T& dst, const volatile T& src)
   // get your helmet on
   auto dptr = (uint64_t*)&dst;
   auto sptr = (const uint64_t*)&src;
-  static_assert((sizeof(T) % 8) == 0);
+  static_assert((sizeof(T) % 8) == 0, "Struct does not consist of integral number of 64 bit counters");
   int num = sizeof(T)/8;
 
   for(int n = 0 ; n < num; ++n)
