@@ -31,3 +31,8 @@
 *.exe
 *.out
 *.app
+
+mcounter
+msingle
+mtests
+mmulti
