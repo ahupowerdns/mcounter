@@ -47,7 +47,7 @@ public:
     d_ucp->removeChild(this);
   }
 
-  volatile T d_value;
+  volatile T d_value{T()};
 private:
   UnsharedCounterStructParent<T>* d_ucp;
 };

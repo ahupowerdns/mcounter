@@ -18,5 +18,5 @@ mmulti: mcounter-multi.o
 msingle: mcounter-single.o 
 	g++ -std=gnu++11 $^ -o $@ -pthread
 
-mtests: mtests.o
+mtests: mtests.o mtests-multi.o
 	g++ -std=gnu++11 $^ -o $@ -pthread

@@ -50,3 +50,4 @@ TEST_CASE("Mcounter single torture", "[threads]") {
   }
   REQUIRE(ucp.get() == 200000000);
 }
+
