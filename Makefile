@@ -1,4 +1,4 @@
-CXXFLAGS:=-std=gnu++11 -Wall -O2 -MMD -MP
+CXXFLAGS:=-std=gnu++11 -Wall -O2 -MMD -MP -ggdb
 
 PROGRAMS = mmulti msingle mtests
 

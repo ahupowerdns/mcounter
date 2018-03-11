@@ -1,8 +1,10 @@
 #pragma once
+#include <string.h>
 #include <cstdint>
 #include <atomic>
 #include <unordered_set>
 #include <mutex>
+#include <stdexcept>
 
 /* Design goal: bunch of thread local counters that are incremented atomically, but they are never shared.
    There is one entrypoint to get the counters, and that collects them from all threads.
@@ -17,19 +19,23 @@
 template<typename T>
 class UnsharedCounterStruct;
 
-
 template<typename T>
 class UnsharedCounterStructParent
 {
 public:
   T get();
+  UnsharedCounterStruct<T> getLocal()
+  {
+    return std::move(UnsharedCounterStruct<T>(this));
+  }
   void addChild(UnsharedCounterStruct<T>*);
   void removeChild(UnsharedCounterStruct<T>*);
+  void moveChild(const UnsharedCounterStruct<T>* from, UnsharedCounterStruct<T>* to);
 private:
   void StructPlusIs(T& dst, const volatile T& src);
   std::unordered_set<UnsharedCounterStruct<T>*> d_children;
   std::mutex d_mutex;
-  T d_formerChildren;
+  T d_formerChildren{T()};
 
 };
 
@@ -44,9 +50,22 @@ public:
 
   ~UnsharedCounterStruct()
   {
-    d_ucp->removeChild(this);
+    if(d_ucp) // perhaps we got moved
+      d_ucp->removeChild(this);
   }
 
+  UnsharedCounterStruct() = delete;
+  UnsharedCounterStruct(const UnsharedCounterStruct&) = delete;
+  UnsharedCounterStruct(UnsharedCounterStruct&& rhs)
+  {
+    d_ucp = rhs.d_ucp;
+    rhs.d_ucp = nullptr;
+    // this works around volatile pain
+    memcpy((void*)&d_value, (void*)&rhs.d_value, sizeof(d_value));
+    d_ucp->moveChild(&rhs, this);
+  }
+  UnsharedCounterStruct& operator=(const UnsharedCounterStruct& rhs) = delete;
+  
   volatile T d_value{T()};
 private:
   UnsharedCounterStructParent<T>* d_ucp;
@@ -93,5 +112,17 @@ void UnsharedCounterStructParent<T>::removeChild(UnsharedCounterStruct<T>* uc)
   std::lock_guard<std::mutex> l(d_mutex);
   StructPlusIs(d_formerChildren, uc->d_value);
   d_children.erase(uc);
+}
+
+template<typename T>
+void UnsharedCounterStructParent<T>::moveChild(const UnsharedCounterStruct<T>* from, UnsharedCounterStruct<T>* to)
+{
+  std::lock_guard<std::mutex> l(d_mutex);
+
+  auto iter = d_children.find(const_cast<UnsharedCounterStruct<T>*>(from));
+  if(iter == d_children.end())
+    throw std::runtime_error("attempt to move unknown child");
+  d_children.erase(iter);
+  d_children.insert(to);
 }
 
