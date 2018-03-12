@@ -76,7 +76,7 @@ UnsharedCounterStructParent<MyCounters> myc;
 
 void worker()
 {
-	UnsharedCounterStruct<MyCounters> uc(&myc);
+	auto uc = myc.getLocal();
 	for(unsigned int n = 0; n < 1000000000; ++n)
 		++uc.d_value.a;
 }
@@ -89,6 +89,13 @@ int main() {
 	cout << myc.get().b << "\n"; // prints 0
 }
 ```
+
+## Usage rules
+For `UnsharedCounter(Struct)` instances, ensure that the `UnsharedCounter(Struct)Parent` does not ever get destroyed before its children are. This requirement is easy to meet if the Parent is always in global scope, whereas its children are always in function scope.
+
+`UnsharedCounter(Struct)` instances must always be destroyed properly. If for example a thread is killed using `pthread_kill` (which you should not do), the destructor may not get called. This will leave the parent pointing to bad data.
+
+The struct behind an `UnsharedCounterStruct` most consist exclusively of 64 bit counters. Any deviation from this will mess up the addition of structs, which is done on a per-64 bit basis.
 
 ## Technicalities
 The UnsharedCounter objects use non-atomic counters. These counters are
