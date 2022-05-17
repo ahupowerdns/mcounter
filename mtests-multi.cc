@@ -1,4 +1,4 @@
-#include "ext/catch.hpp"
+#include "ext/doctest.h"
 #include "mcounter.hh"
 #include <thread>
 #include <unistd.h>
@@ -11,7 +11,7 @@ namespace {
 }
 
 
-TEST_CASE("Mcounter multiple basic", "[multbas]") {
+TEST_CASE("Mcounter multiple basic") {
   UnsharedCounterStructParent<mystruct> ucp;
   
   auto func = [](UnsharedCounterStructParent<mystruct>* ucp) {
@@ -29,7 +29,7 @@ TEST_CASE("Mcounter multiple basic", "[multbas]") {
 }
 
 
-TEST_CASE("Mcounter multiple move", "[multmove]") {
+TEST_CASE("Mcounter multiple move") {
   UnsharedCounterStructParent<mystruct> ucp;
 
   auto func = [](UnsharedCounterStructParent<mystruct>* ucp) {
@@ -49,7 +49,7 @@ TEST_CASE("Mcounter multiple move", "[multmove]") {
   REQUIRE(ucp.get().b == 40000000);
 }
 
-TEST_CASE("Mcounter multi torture", "[mtorture]") {
+TEST_CASE("Mcounter multi torture") {
   UnsharedCounterStructParent<mystruct> ucp;
 
   auto func = [](UnsharedCounterStructParent<mystruct>* ucp) {

@@ -1,9 +1,11 @@
-#define CATCH_CONFIG_MAIN  
-#include "ext/catch.hpp"
+
+
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "ext/doctest.h"
 #include "mcounter-single.hh"
 #include <thread>
 
-TEST_CASE("Mcounter single basic", "[basic]") {
+TEST_CASE("Mcounter single basic") {
   UnsharedCounterParent ucp;
   REQUIRE(ucp.get()==0);
   UnsharedCounter uc(&ucp);
@@ -17,7 +19,7 @@ TEST_CASE("Mcounter single basic", "[basic]") {
   REQUIRE(ucp.get()==1000001);
 }
 
-TEST_CASE("Mcounter single threads", "[threads]") {
+TEST_CASE("Mcounter single threads") {
   UnsharedCounterParent ucp;
 
   auto func = [](UnsharedCounterParent* ucp) {
@@ -32,7 +34,7 @@ TEST_CASE("Mcounter single threads", "[threads]") {
   REQUIRE(ucp.get() == 20000000);
 }
 
-TEST_CASE("Mcounter single torture", "[threads]") {
+TEST_CASE("Mcounter single torture") {
   UnsharedCounterParent ucp;
 
   auto func = [](UnsharedCounterParent* ucp) {
