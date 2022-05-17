@@ -19,6 +19,21 @@ TEST_CASE("Mcounter single basic") {
   REQUIRE(ucp.get()==1000001);
 }
 
+TEST_CASE("Mcounter single increments") {
+  UnsharedCounterParent ucp;
+  REQUIRE(ucp.get()==0);
+  UnsharedCounter uc(&ucp);
+  REQUIRE(ucp.get()==0);
+  int v = ++uc;
+  REQUIRE(v ==1);
+  REQUIRE(ucp.get()==1);
+
+  v = uc++;
+  REQUIRE(v ==1);
+  REQUIRE(ucp.get()==2);
+  
+}
+
 TEST_CASE("Mcounter single threads") {
   UnsharedCounterParent ucp;
 

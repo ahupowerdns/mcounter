@@ -34,10 +34,16 @@ public:
   UnsharedCounter(const UnsharedCounter&) = delete;
   UnsharedCounter(const UnsharedCounter&&) = delete;
   
-  uint64_t operator++()
+  uint64_t operator++(int)
   {
     return d_value++;
   }
+
+  uint64_t operator++()
+  {
+    return ++d_value;
+  }
+
   
   volatile uint64_t d_value{0};
 private:
