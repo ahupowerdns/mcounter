@@ -39,9 +39,11 @@ void sharedStructWorker(unsigned int a)
 }
 
 
+std::atomic<bool> stop;
+
 void printWorker()
 {
-  for(;;) {
+  while (!stop) {
     cout<< myc.get().a << " / " << mca.a <<", "<<mca.b<<endl;
     usleep(100000);
   }
@@ -55,7 +57,6 @@ int main(int argc, char **argv)
   int num= argc > 1 ? atoi(argv[1]) : 1;
   bool unshared = argc > 2 ? argv[2]==std::string("unshared") : 1;
   std::thread progress(printWorker);
-  progress.detach();
 
   vector<std::thread> threads;
 
@@ -67,6 +68,9 @@ int main(int argc, char **argv)
   for(auto& t : threads)
     t.join();
                            
+  stop = true;
+  progress.join();
+
   auto finish = high_resolution_clock::now();
   auto msecs = duration_cast<milliseconds>(finish-start);
   cout<<msecs.count()<<" milliseconds"<<endl;

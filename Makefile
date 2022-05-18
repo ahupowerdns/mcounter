@@ -1,4 +1,4 @@
-CXXFLAGS:=-std=gnu++11 -Wall -O2 -MMD -MP -ggdb
+CXXFLAGS=-std=c++17 -Wall -O2 -MMD -MP -ggdb
 
 PROGRAMS = mmulti msingle mtests
 
@@ -13,10 +13,10 @@ check: mtests
 -include *.d
 
 mmulti: mcounter-multi.o 
-	g++ -std=gnu++11 $^ -o $@ -pthread
+	${CXX} $^ -o $@ -pthread
 
 msingle: mcounter-single.o 
-	g++ -std=gnu++11 $^ -o $@ -pthread
+	${CXX} $^ -o $@ -pthread
 
 mtests: mtests.o mtests-multi.o
-	g++ -std=gnu++11 $^ -o $@ -pthread
+	${CXX} $^ -o $@ -pthread
