@@ -24,9 +24,11 @@ void sharedWorker(unsigned int a)
     ++g_counter;
 }
 
+std::atomic<bool> stop;
+
 void printWorker()
 {
-  for(;;) {
+  while (!stop) {
     cout<< ucp.get() << " / " <<g_counter<<endl;
     usleep(100000);
   }
@@ -39,7 +41,6 @@ int main(int argc, char **argv)
   bool unshared = argc > 2 ? argv[2]==std::string("unshared") : 1;
   
   std::thread progress(printWorker);
-  progress.detach();
   
   vector<std::thread> threads;
 
@@ -50,6 +51,9 @@ int main(int argc, char **argv)
   for(auto& t : threads)
     t.join();
                            
+  stop = true;
+  progress.join();
+
   auto finish = high_resolution_clock::now();
   auto msecs = duration_cast<milliseconds>(finish-start);
 
